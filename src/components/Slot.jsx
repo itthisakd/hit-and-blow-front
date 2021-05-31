@@ -1,24 +1,25 @@
-import React from "react";
-import { useGameContext } from "../contexts/gameContext";
+import React from 'react'
+import { useGameContext } from '../contexts/gameContext'
+import checkAnswer from '../utilities/checkAnswer'
 
 const classes = {
-  center: "flex flex-col justify-center items-center w-min",
-  round: "rounded-full w-3 h-3 text-lg font-bold opacity-0",
-  roundInvisible: "rounded-full w-3 h-3 text-lg font-bold",
-  hintBox: "flex flex-row justify-evenly items-center w-min m-5 rounded-lg",
+  center: 'flex flex-col justify-center items-center w-min',
+  round: 'rounded-full w-3 h-3 text-lg font-bold opacity-0',
+  roundInvisible: 'rounded-full w-3 h-3 text-lg font-bold',
+  hintBox: 'flex flex-row justify-evenly items-center w-min m-5 rounded-lg',
   hintBoxInvisible:
-    "flex flex-row justify-evenly items-center border border-black w-min m-5 rounded-lg",
-  hint: "w-4 h-4 m-2 rounded-full opacity-0",
-  hintInvisible: "w-4 h-4 m-2 rounded-full border-2 border-black",
+    'flex flex-row justify-evenly items-center border border-black w-min m-5 rounded-lg',
+  hint: 'w-4 h-4 m-2 rounded-full opacity-0',
+  hintInvisible: 'w-4 h-4 m-2 rounded-full border-2 border-black',
   pinBox:
-    "flex flex-col justify-evenly items-center border border-black w-min p-5 rounded-2xl",
-  pin: "w-20 h-20 m-2 rounded-full border-2 border-black",
+    'flex flex-col justify-evenly items-center border border-black w-min p-5 rounded-2xl',
+  pin: 'w-20 h-20 m-2 rounded-full border-2 border-black',
   button:
-    "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-5",
-  buttonDisabled: "bg-gray-300 text-white font-bold py-2 px-4 rounded mt-5",
+    'bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-5',
+  buttonDisabled: 'bg-gray-300 text-white font-bold py-2 px-4 rounded mt-5',
   buttonInvisible:
-    "bg-gray-300 text-white font-bold py-2 px-4 rounded mt-5 opacity-0 cursor-default",
-};
+    'bg-gray-300 text-white font-bold py-2 px-4 rounded mt-5 opacity-0 cursor-default'
+}
 
 export default function Slot({
   pins,
@@ -27,11 +28,13 @@ export default function Slot({
   round,
   currentRound,
   setCurrentRound,
+  setCheckedAnswer,
+  setAnswerFound,
   setPinTo,
   colorSelected,
-  style,
+  style
 }) {
-  const { color } = useGameContext();
+  const { color } = useGameContext()
 
   return (
     <div className={classes.center}>
@@ -46,10 +49,10 @@ export default function Slot({
             <div
               className={answer ? classes.hint : classes.hintInvisible}
               style={{
-                backgroundColor: color[Number(c)],
+                backgroundColor: color[Number(c)]
               }}
             />
-          );
+          )
         })}
       </div>
       {/*ANCHOR PINS HERE */}
@@ -59,20 +62,34 @@ export default function Slot({
             <div
               className={classes.pin}
               style={{
-                backgroundColor: color[c],
+                backgroundColor: color[c]
               }}
               onClick={
                 answer ? null : () => setPinTo(round, idx + 1, colorSelected)
               }
             />
-          );
+          )
         })}
       </div>
       {round === currentRound &&
       Object.values(pins).filter((key) => /^[A-Z]/.test(key)).length === 4 ? (
         <button
           className={classes.button}
-          onClick={answer ? null : () => setCurrentRound(currentRound + 1)}
+          onClick={
+            answer
+              ? null
+              : () => {
+                  const checked = checkAnswer(pins)
+                  if (
+                    Object.values(checked).filter((c) => c != 2).length === 0
+                  ) {
+                    setAnswerFound(true)
+                    setCurrentRound(9)
+                  }
+                  setCheckedAnswer(currentRound, checked) // check order and intervals
+                  setCurrentRound(currentRound + 1)
+                }
+          }
         >
           OK
         </button>
@@ -85,5 +102,5 @@ export default function Slot({
         <div className={classes.buttonInvisible}>OK</div>
       ) : null}
     </div>
-  );
+  )
 }
